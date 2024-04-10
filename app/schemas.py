@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 from datetime import datetime
 
-
 class TagBase(BaseModel):
     title: str
     type: str
@@ -17,23 +16,44 @@ class Tag(TagBase):
     class Config:
         orm_mode = True
 
+class UserBase(BaseModel):
+    first_name: str
+    last_name: str
+    username: str
+    profile_image_url: str
+    email: str
+
+class UserCreate(UserBase):
+    password: str
+
+# Don't return password of the user, so inherit from the UserBase...
+class User(UserBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
 class ImageBase(BaseModel):
     blur_hash: str
     created_at: datetime
-    description: str
-    alt_description: str
+    description: str | None = None
+    alt_description: str | None  = None
     width: int
     height: int
     color: str
     likes: int
 
 class ImageCreate(ImageBase):
-    pass
+    tags: list[Tag]
+
+class ImageResponse(ImageCreate):
+    url: str
 
 # now instance of Image will contain its id, and the tags associated with it...
 class Image(ImageBase):
     id: int
-    tags: list[Tag] = []
+    user: User
+    # tags: list[Tag] = []
 
     class Config:
         orm_mode = True
