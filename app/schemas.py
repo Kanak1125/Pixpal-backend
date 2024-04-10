@@ -41,13 +41,16 @@ class ImageBase(BaseModel):
     width: int
     height: int
     color: str
+    file_name: str
     likes: int
 
 class ImageCreate(ImageBase):
     tags: list[Tag]
 
-class ImageResponse(ImageCreate):
+class ImageResponse(ImageBase):
+    id: int
     url: str
+    user: User
 
 # now instance of Image will contain its id, and the tags associated with it...
 class Image(ImageBase):

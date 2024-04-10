@@ -24,6 +24,6 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit = False, autoflush = False, bind = engine)
 
 # map the class to the db records by inheriting the class by the orm model...
-#Base = declarative_base()
-mapper_registry = registry()
-Base = mapper_registry.generate_base()
+Base = declarative_base()
+# mapper_registry = registry()
+# Base = mapper_registry.generate_base()

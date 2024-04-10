@@ -3,7 +3,10 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
 
-from .database import Base, mapper_registry, engine
+import webbrowser
+
+from .database import Base, engine
+from .schemas import ImageResponse
 
 image_tag_association = Table (
     "image_tag_association",
@@ -25,6 +28,10 @@ class User(Base):
 
     images = relationship("Image", back_populates="user")
 
+    def to_dict(self):
+        return {field.name: getattr(self, field.name) for field in self.__table__.columns}
+
+
 class Image(Base):
     __tablename__ = "images"
 
@@ -37,11 +44,28 @@ class Image(Base):
     height = Column(Integer)
     color = Column(String)
     likes = Column(Integer)
-    # file_name = Column(String)
+    file_name = Column(String)
     user_id = Column(Integer, ForeignKey(User.id))
 
     user = relationship("User", back_populates="images")
     tags = relationship("Tag", secondary=image_tag_association, back_populates="images")
+    
+    def to_dict(self):
+        
+        return {field.name: getattr(self, field.name) for field in self.__table__.columns}
+    
+    @property
+    def url(self):
+        # webbrowser.open_new(webbrowser.URL(f"file://{self.file_name}.jpg", "text".encode()))
+
+        BASE_URL = "localhost:8000/images/"
+
+        return BASE_URL + self.file_name
+    
+    def list_serialize(self):
+        obj = ImageResponse(**self.to_dict(), url=self.url, user=self.user.to_dict())
+        return obj.model_dump()
+    
 
 # map to Tag relation...
 class Tag(Base):
@@ -53,6 +77,10 @@ class Tag(Base):
     # image_id = Column(Integer, ForeignKey("images.id"))
 
     images = relationship("Image", secondary=image_tag_association, back_populates="tags")
+
+    def to_dict(self):
+        return {field.name: getattr(self, field.name) for field in self.__table__.columns}
+
 
 
 ### Create tables if they don't exist

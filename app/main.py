@@ -58,19 +58,19 @@ def create_image(image: schemas.ImageCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code= 400, detail= "Image already exits...")
     return crud.create_image(db= db, image= image)
 
-@app.get("/images/", response_model= list[schemas.Image])
+@app.get("/images/", response_model= list[schemas.ImageResponse])
 def read_images(db: Session = Depends(get_db)):
     db_images = crud.get_images(db)
-    # user = 
+
     if db_images == None:
         raise HTTPException(status_code=204, detail= "No contents available...")
     # return {
     #     **db_images,
 
     # }
-    return db_images
+    return [image.list_serialize() for image in db_images]
 
-@app.get("/image/{image_id}", response_model= schemas.Image)
+@app.get("/image/{image_id}", response_model= schemas.ImageResponse)
 def read_image(db: Session = Depends(get_db), image_id: int = 1):
     db_image = crud.get_image(db, image_id)
     # user = 

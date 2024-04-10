@@ -61,8 +61,8 @@ def populate_db(db):
         if (idx == 0):
             pyd_model_users = schemas.UserCreate(**user)
             crud.create_user(db, pyd_model_users)
-            
-        pyd_model_images = schemas.ImageBase(**each)
+
+        pyd_model_images = schemas.ImageBase(file_name=f"image-{idx}.jpg" ,**each)
 
         crud.create_image(db, pyd_model_images)
         

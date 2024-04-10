@@ -1,12 +1,20 @@
 import json
+from mimetypes import MimeTypes
 
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.dialects import postgresql
 
 from . import models, schemas
 
+mime = MimeTypes()
+
+# def make_url(mime_type, bin_data):
+#     return 'data:'+f_mime+';base64, '+bin_data
+
+## Singleton pattern
+
 def get_image(db: Session, image_id: int):
     result = db.query(models.Image).filter(models.Image.id == image_id).first()
-
     # response = {
     #     json.dumps(result)
     # }
@@ -14,12 +22,20 @@ def get_image(db: Session, image_id: int):
 
 def get_images(db: Session):
     # return db.query(models.Image).options(joinedload(models.Image.user_id)).all()
+    # query = (db.query(models.Image)).compile(dialect=postgresql.dialect, compile_kwargs={"literal_binds": True})
+
+    print("QUERY ----->", db.query(models.Image))
+
     return db.query(models.Image).all()
 
 def create_image(db: Session, image: schemas.ImageCreate):
     # instance of models.Image...
-    db_image = models.Image(blur_hash= image.blur_hash, created_at= image.created_at, description= image.description, alt_description= image.alt_description, width= image.width, height = image.height, color = image.color, likes = image.likes, user_id= 1)
 
+    # url = 
+    db_image = models.Image(blur_hash= image.blur_hash, created_at= image.created_at, description= image.description, alt_description= image.alt_description, width= image.width, height = image.height, color = image.color, likes = image.likes, file_name= image.file_name, user_id= 1)
+
+    # tags and url to be included....
+    
     # response = {
     #     "id": db_image.id,
     #     "blur_hash": db_image.blur_hash,
