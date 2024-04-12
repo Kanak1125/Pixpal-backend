@@ -2,6 +2,11 @@ from pydantic import BaseModel
 
 from datetime import datetime
 
+class URL(BaseModel):
+    small: str
+    regular: str
+    large: str
+
 class TagBase(BaseModel):
     title: str
     type: str
@@ -11,10 +16,12 @@ class TagCreate(TagBase):
 
 class Tag(TagBase):
     id: int
-    images: str
 
     class Config:
         orm_mode = True
+
+class TagResponse(TagBase):
+    images: list[int]
 
 class UserBase(BaseModel):
     first_name: str
@@ -45,18 +52,19 @@ class ImageBase(BaseModel):
     likes: int
 
 class ImageCreate(ImageBase):
-    tags: list[Tag]
+    tags: list[int] = []
 
-class ImageResponse(ImageBase):
+class ImageResponse(ImageCreate):
     id: int
-    url: str
+    urls: URL
     user: User
+    tags: list[Tag] = []
 
 # now instance of Image will contain its id, and the tags associated with it...
 class Image(ImageBase):
     id: int
     user: User
-    # tags: list[Tag] = []
+    tags: list[Tag] = []
 
     class Config:
         orm_mode = True

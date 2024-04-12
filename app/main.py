@@ -62,11 +62,11 @@ def create_image(image: schemas.ImageCreate, db: Session = Depends(get_db)):
 def read_images(db: Session = Depends(get_db)):
     db_images = crud.get_images(db)
 
+    print("DB_IMAGES_DATA ======>", [image.list_serialize() for image in db_images])
     if db_images == None:
         raise HTTPException(status_code=204, detail= "No contents available...")
     # return {
     #     **db_images,
-
     # }
     return [image.list_serialize() for image in db_images]
 

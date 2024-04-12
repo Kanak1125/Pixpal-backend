@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.dialects import postgresql
 
 from . import models, schemas
+from .database import SessionLocal
 
 mime = MimeTypes()
 
@@ -26,13 +27,23 @@ def get_images(db: Session):
 
     print("QUERY ----->", db.query(models.Image))
 
-    return db.query(models.Image).all()
+    return db.query(models.Image).options(joinedload(models.Image.tags)).all()
 
 def create_image(db: Session, image: schemas.ImageCreate):
     # instance of models.Image...
 
-    # url = 
-    db_image = models.Image(blur_hash= image.blur_hash, created_at= image.created_at, description= image.description, alt_description= image.alt_description, width= image.width, height = image.height, color = image.color, likes = image.likes, file_name= image.file_name, user_id= 1)
+    tags = db.query(models.Tag).filter(models.Tag.id.in_(image.tags)).all()
+    # tag1 = models.Tag(id=202, title="water", type="search")
+    # tag2 = models.Tag(id=304, title="old", type="search")
+
+    print("CREAATE IMAGE ", image.file_name, flush=True) 
+    db_image = models.Image(blur_hash= image.blur_hash, 
+                            created_at= image.created_at, 
+                            description= image.description, 
+                            alt_description= image.alt_description, width= image.width, height = image.height, color = image.color, likes = image.likes, file_name= image.file_name, user_id= 1, tags=tags)
+    ## tags = image.tags
+    ### tags = tags
+    # db_image.tags.add_all()
 
     # tags and url to be included....
     
@@ -51,11 +62,16 @@ def create_image(db: Session, image: schemas.ImageCreate):
     #         "username": db_image.user.username,
     #         "email": db_image.user.email,
     #     }
-    # }
+    # )
+
+    # for tag in tags:
+    #     db_image.tags.append(tag)
 
     db.add(db_image)
     db.commit()
     db.refresh(db_image)
+
+
     return db_image
 
 def get_tag(db: Session, tag_id: int):
