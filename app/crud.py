@@ -1,16 +1,9 @@
 import json
-from mimetypes import MimeTypes
+from datetime import datetime
 
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy.dialects import postgresql
 
 from . import models, schemas
-from .database import SessionLocal
-
-mime = MimeTypes()
-
-# def make_url(mime_type, bin_data):
-#     return 'data:'+f_mime+';base64, '+bin_data
 
 ## Singleton pattern
 
@@ -21,13 +14,30 @@ def get_image(db: Session, image_id: int):
     # }
     return result
 
-def get_images(db: Session):
+def get_images(skip: int, limit: int, db: Session):
     # return db.query(models.Image).options(joinedload(models.Image.user_id)).all()
     # query = (db.query(models.Image)).compile(dialect=postgresql.dialect, compile_kwargs={"literal_binds": True})
 
     print("QUERY ----->", db.query(models.Image))
+    print("\n\n\n\nValue of skip ----->", skip, "\n\n\n\nValue of limit----->", limit)
 
-    return db.query(models.Image).options(joinedload(models.Image.tags)).all()
+    return db.query(models.Image).offset(skip).limit(limit).options(joinedload(models.Image.tags)).all()
+
+def get_images_searches(db: Session, query_str: list[str] = None):
+    print("QUERY ----->", db.query(models.Image))
+
+    query_tags = db.query(models.Tag).filter(models.Tag.title.in_(query_str)).all()
+    
+    if not query_str:
+        return []
+    
+    images = []
+    for tag in query_tags:
+        images.extend(tag.images)
+
+    unique_images = list(set(images))
+
+    return unique_images
 
 def create_image(db: Session, image: schemas.ImageCreate):
     # instance of models.Image...
@@ -38,7 +48,8 @@ def create_image(db: Session, image: schemas.ImageCreate):
 
     print("CREAATE IMAGE ", image.file_name, flush=True) 
     db_image = models.Image(blur_hash= image.blur_hash, 
-                            created_at= image.created_at, 
+                            # created_at= datetime.fromtimestamp(datetime.UTC), 
+                            created_at= datetime.now(), 
                             description= image.description, 
                             alt_description= image.alt_description, width= image.width, height = image.height, color = image.color, likes = image.likes, file_name= image.file_name, user_id= 1, tags=tags)
     ## tags = image.tags
@@ -77,8 +88,8 @@ def create_image(db: Session, image: schemas.ImageCreate):
 def get_tag(db: Session, tag_id: int):
     return db.query(models.Tag).filter(models.Tag.id == tag_id).first()
 
-def get_tags(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Tag).offset(skip).limit(limit).all()
+def get_tags(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(models.Tag).offset(skip).limit(limit).options(joinedload(models.Tag.images)).all()
 
 def create_tag(db: Session, tag: schemas.TagCreate):
     db_tag = models.Tag(title=tag.title, type=tag.type)

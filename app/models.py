@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship, backref
 
 from .database import Base, engine, SessionLocal
-from .schemas import ImageResponse
+from .schemas import ImageResponse, TagResponse
 
 image_tag_association = Table (
     "assoc_image_tag",
@@ -92,20 +92,17 @@ class Tag(Base):
 
     def to_dict(self):
         return {field.name: getattr(self, field.name) for field in self.__table__.columns}
+    
+    def list_serialize(self):
+        images_id = [image.id for image in self.images]
 
-
-# Association Table...
-# class ImageTag(Base):
-#     __tablename__ = "assoc_image_tag"
-#     image_id = Column(Integer, ForeignKey("images.id"), primary_key=True)
-#     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
-#     images = relationship("Image", back_populates="tags")
-#     tags = relationship("Tag", back_populates="images")
+        obj = TagResponse(**self.to_dict(), images=images_id)
+        return obj.model_dump()
 
 
 ### Create tables if they don't exist
-# mapper_registry.metadata.create_all(engine, checkfirst=True)
 
+# mapper_registry.metadata.create_all(engine, checkfirst=True)
 Base.metadata.create_all(engine)
 
 
