@@ -15,12 +15,12 @@ class TagCreate(TagBase):
     pass
 
 class Tag(TagBase):
-    id: int
 
     class Config:
         orm_mode = True
 
 class TagResponse(TagBase):
+    id: int
     images: list[int]
 
 class UserBase(BaseModel):
@@ -39,6 +39,11 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+# class ImageFormData (BaseModel):
+#     description: str
+#     color: str
+#     tags: list[str]
 
 class ImageBase(BaseModel):
     blur_hash: str

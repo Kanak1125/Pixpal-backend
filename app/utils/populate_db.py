@@ -43,6 +43,7 @@ def populate_db(db):
     with open(Path("app") / "assets" / "fixtures.json", "rb") as f:
         results = json.load(f)
     
+    print("Results: ", results)
     # results = enumerate([1, 2, 3, 4, 5])
 
     # DUMMY USER...
@@ -50,7 +51,7 @@ def populate_db(db):
         'first_name': "Alien",
         'last_name': "Helion",
         'username': "alienHelion",
-        'profile_image_url': "http://something.com/image.jpg",
+        'profile_image_url': 'sdkfj',
         'email': "alien@gmail.com",
         'password': "alien123"
     }
@@ -74,8 +75,8 @@ def populate_db(db):
     db.commit()
 
     for idx, each in enumerate(results):
-        directory = os.path.dirname(IMAGE_FILE)
-        print(directory)
+        # directory = os.path.dirname(IMAGE_FILE)
+        # print(directory)
 
         resp = requests.get(each['urls']['regular'])
 

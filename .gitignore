@@ -3,3 +3,5 @@
 *.log
 *.jpg
 venv/
+seed_images/
+**/*/images
