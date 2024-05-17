@@ -15,6 +15,29 @@ COLOR_RANGE = {
 }
 ## Singleton pattern
 
+def get_or_create_color(db: Session, color_data: schemas.Color):
+    '''
+        function to add color data to the db...
+    '''
+    color = db.query(models.Color).filter_by(
+        hue = color_data.hue,
+        saturation = color_data.saturation,
+        value = color_data.value
+    ).first()
+
+    if color is None:
+        color = models.Color(
+            hue = color_data.hue,
+            saturation = color_data.saturation,
+            value = color_data.value
+        )
+
+        db.add(color)
+        db.commit()
+        db.refresh(color)
+
+    return color
+
 def get_image(db: Session, image_id: int):
     result = db.query(models.Image).filter(models.Image.id == image_id).first()
     # response = {
@@ -71,7 +94,9 @@ def get_images_searches(db: Session, **query_str):
 
     if color_query:
         # image_query = image_query.filter(models.Image.color)
-        image_query = image_query.filter(models.Image.color[0] in COLOR_RANGE[color_query])
+        print("\n\n\nData from the colored filter =======> {0} \n\n\n".format(image_query.filter(models.Image.color.contains(color_query))))
+        pass
+        # image_query = image_query.filter(models.Image.color[0] in COLOR_RANGE[color_query])
 
     # images = []
     # for image in image_query.all():
@@ -86,6 +111,8 @@ def get_images_searches(db: Session, **query_str):
 def create_image(db: Session, image: schemas.ImageCreate):
     # instance of models.Image...
 
+    color = get_or_create_color(db, image.average_color)
+    
     tags = db.query(models.Tag).filter(models.Tag.id.in_(image.tags)).all()
     # tag1 = models.Tag(id=202, title="water", type="search")
     # tag2 = models.Tag(id=304, title="old", type="search")
@@ -95,7 +122,7 @@ def create_image(db: Session, image: schemas.ImageCreate):
                             # created_at= datetime.fromtimestamp(datetime.UTC), 
                             created_at= image.created_at, 
                             description= image.description, 
-                            alt_description= image.alt_description, width= image.width, height = image.height, color = image.color, likes = image.likes, file_name= image.file_name, user_id= 2, tags=tags)
+                            alt_description= image.alt_description, width= image.width, height = image.height, average_color_id = color.id, likes = image.likes, file_name= image.file_name, user_id= 1, tags=tags)
     ## tags = image.tags
     ### tags = tags
     # db_image.tags.add_all()

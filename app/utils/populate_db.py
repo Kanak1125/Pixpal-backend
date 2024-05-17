@@ -100,7 +100,15 @@ def populate_db(db):
         py_model_tags = schemas.TagBase(title= tags[idx], type= "search")
         crud.create_tag(db, py_model_tags)
 
-        pyd_model_images = schemas.ImageCreate(file_name=f"image_{idx}.jpg",**each, tags=[202, 304])
+        average_color_data = {
+            "hue": 0,
+            "saturation": 100,
+            "value": 100
+        }
+
+        average_color = schemas.Color(**average_color_data)
+
+        pyd_model_images = schemas.ImageCreate(file_name=f"image_{idx}.jpg", average_color= average_color, **each, tags=[202, 304])
 
 
         crud.create_image(db, pyd_model_images)

@@ -28,10 +28,23 @@ class User(Base):
     password = Column(String)
 
     images = relationship("Image", back_populates="user")
+    # images = relationship("Image", back_populates="users")
 
     def to_dict(self):
         return {field.name: getattr(self, field.name) for field in self.__table__.columns}
 
+class Color(Base):
+    __tablename__ = "colors"
+
+    id = Column(Integer, primary_key=True, index=True)
+    hue = Column(Integer)
+    saturation = Column(Integer)
+    value = Column(Integer)
+
+    images = relationship("Image", back_populates="average_color")
+
+    def to_dict(self):
+        return {field.name: getattr(self, field.name) for field in self.__table__.columns}
 
 class Image(Base):
     __tablename__ = "images"
@@ -43,12 +56,14 @@ class Image(Base):
     alt_description = Column(String)
     width = Column(Integer)
     height = Column(Integer)
-    color = Column(String)
     likes = Column(Integer)
     file_name = Column(String)
+    average_color_id = Column(Integer, ForeignKey('colors.id'), nullable=False)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     
     tags = relationship("Tag", secondary="assoc_image_tag", back_populates="images")
+
+    average_color = relationship("Color", back_populates="images", lazy="joined")
 
     user = relationship("User", back_populates="images", lazy="joined")
     
@@ -57,7 +72,7 @@ class Image(Base):
     
     @property
     def url(self):
-        BASE_URL = "http://localhost:8000/"
+        BASE_URL = "http://localhost:8000/images/"
 
         return {
             'small': BASE_URL + self.file_name,
@@ -72,7 +87,7 @@ class Image(Base):
             "type": tag.type
             } for tag in self.tags]
 
-        obj = ImageResponse(**self.to_dict(), urls=self.url, user=self.user.to_dict(), tags=tags)
+        obj = ImageResponse(**self.to_dict(), urls=self.url, user=self.user.to_dict(), average_color=self.average_color.to_dict(), tags=tags)
         return obj.model_dump()
     
 
@@ -87,9 +102,7 @@ class Tag(Base):
 
     # images = relationship("ImageTag", back_populates="tags")
     images = relationship("Image", secondary="assoc_image_tag", back_populates="tags")
-
-    # images = relationship("Image", secondary="assoc_image_tag", backref='tags', lazy='dynamic')
-
+    
     def to_dict(self):
         return {field.name: getattr(self, field.name) for field in self.__table__.columns}
     
@@ -101,15 +114,4 @@ class Tag(Base):
 
 
 ### Create tables if they don't exist
-
-# mapper_registry.metadata.create_all(engine, checkfirst=True)
 Base.metadata.create_all(engine)
-
-
-# tag1 = Tag(id=202, title="water", type="search")
-# tag2 = Tag(id=304, title="old", type="search")
-
-# image1 = Image(id= 101, blur_hash='skdjf3jj33r3', created_at="some data", description= "lskjdfklj", alt_description= "ksjdfk", width=234, height= 800, color= "#ff0023", likes= 123, file_name="abc.jpg", tags=[tag1, tag2])
-
-# session.add_all([tag1, tag2, image1])
-# session.commit()

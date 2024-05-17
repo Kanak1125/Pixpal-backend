@@ -7,6 +7,11 @@ class URL(BaseModel):
     regular: str
     large: str
 
+class Color(BaseModel):
+    hue: int
+    saturation: int
+    value: int
+
 class TagBase(BaseModel):
     title: str
     type: str
@@ -15,7 +20,7 @@ class TagCreate(TagBase):
     pass
 
 class Tag(TagBase):
-
+    
     class Config:
         orm_mode = True
 
@@ -52,11 +57,11 @@ class ImageBase(BaseModel):
     alt_description: str | None  = None
     width: int
     height: int
-    color: str
     file_name: str
     likes: int
 
 class ImageCreate(ImageBase):
+    average_color: Color
     tags: list[int] = []
 
 class ImageResponse(ImageCreate):

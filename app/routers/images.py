@@ -22,7 +22,7 @@ router = APIRouter(
 BASE_ROUTE = "api"
 
 @router.post(f"/images/")
-async def create_image(description: str = Form(...), color: str = Form(...), tags: list[str] = Form(...),  uploaded_file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def create_image(description: str = Form(...), color: schemas.Color = Form(...), tags: list[str] = Form(...),  uploaded_file: UploadFile = File(...), db: Session = Depends(get_db)):
 
     directory = Path("seed_images")
 
@@ -63,8 +63,8 @@ async def create_image(description: str = Form(...), color: str = Form(...), tag
     width, height = img_size
     number_of_decimals = 4
 
-    colorDict = eval(color)  # convert str to dict...
-    hsvColor = colorsys.rgb_to_hsv(round(colorDict["r"] / float(256), number_of_decimals), round(colorDict["g"] / float(256), number_of_decimals), round(colorDict["b"] / float(256), number_of_decimals))
+    # colorDict = eval(color)  # convert str to dict...
+    hsvColor = colorsys.rgb_to_hsv(round(color["R"] / float(256), number_of_decimals), round(color["G"] / float(256), number_of_decimals), round(color["B"] / float(256), number_of_decimals))   # returns hsv in decimal...
 
     image = {
         "blur_hash": hash,
@@ -73,7 +73,7 @@ async def create_image(description: str = Form(...), color: str = Form(...), tag
         "alt_description": uploaded_file.filename,
         "width": width,
         "height": height,
-        "color": "{0}".format(hsvColor),
+        # "color": "{0}".format(hsvColor),
         "file_name": uploaded_file.filename,
         "likes": 0,
     }
