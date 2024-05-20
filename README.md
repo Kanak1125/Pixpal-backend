@@ -1,6 +1,6 @@
 # Pixpal (Image Discovery Site)
 
-Pixpal is an image discovery site that allows users to search for images by keyword. The site uses the API build using the fastAPI in the backend to fetch images based on the user's search query. Users can also view the images, get the related images and download them.
+Pixpal is an image discovery site that allows users to search for images by keyword. The site uses the API built using the fastAPI in the backend to fetch images based on the user's search query. Users can also view the images, get the related images and download them.
 
 The backend of the project is built with the FastAPI framework as it is a modern, fast (high-performance), web framework for building APIs with Python 3.6+ based on standard Python type hints.
 
