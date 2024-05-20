@@ -6,13 +6,22 @@ from sqlalchemy.orm import Session, joinedload
 from . import models, schemas
 
 COLOR_RANGE = {
-    "red": '{0}'.format(range(0, 60)),
-    "yellow": '{0}'.format(range(60, 120)),
-    "green": '{0}'.format(range(120, 180)),
-    "cyan": '{0}'.format(range(180, 240)),
-    "blue": '{0}'.format(range(240, 300)),
-    "magenta": '{0}'.format(range(300, 360)),
+    "red": list(range(0, 31)) + list(range(330, 360)),
+    "yellow": list(range(30, 91)),
+    "green": list(range(90, 151)),
+    "cyan": list(range(150, 211)),
+    "blue": list(range(210, 271)),
+    "magenta": list(range(270, 331)),
+    "black": {
+        "value_range": list(range(0, 21)),
+        "saturation_range": list(range(0, 101))  # Any saturation for black...
+    },
+    "white": {
+        "value_range": list(range(81, 101)),
+        "saturation_range": list(range(0, 11))
+    },
 }
+
 ## Singleton pattern
 
 def get_or_create_color(db: Session, color_data: schemas.Color):
@@ -72,7 +81,7 @@ def get_images_searches(db: Session, **query_str):
     
     # query_tags = db.query(models.Tag).filter(models.Tag.title.in_(search_query)).all()
 
-    print("IMGQUERY 1 ", image_query.count(), "\n\n\n\n\n\n")
+    # print("IMGQUERY 1 ", image_query.count(), "\n\n\n\n\n\n")
     
     if orientation_query:
         match (orientation_query):
@@ -94,8 +103,28 @@ def get_images_searches(db: Session, **query_str):
 
     if color_query:
         # image_query = image_query.filter(models.Image.color)
-        print("\n\n\nData from the colored filter =======> {0} \n\n\n".format(image_query.filter(models.Image.color.contains(color_query))))
-        pass
+        color_range = COLOR_RANGE[color_query]
+        print("\n\n\n Current color range is ===> ", color_range)
+
+
+        # image_query = db.query(models.Image).filter(models.Image.tags.any(models.Tag.title.in_(search_query)))
+        imageModel = models.Image
+        colorModel = models.Color
+
+        if color_query in ["black", "white"]:
+            saturation_range = color_range["saturation_range"]
+            value_range = color_range["value_range"]
+
+            image_query = db.query(models.Image).filter(models.Image.average_color.has(
+                models.Color.saturation.in_(saturation_range) 
+                & 
+                models.Color.value.in_(value_range)
+            ))
+
+        else:
+            image_query = db.query(models.Image).filter(models.Image.average_color.has(models.Color.hue.in_(color_range)))
+
+        print("\n\n\nData from the colored filter =======> {0} \n\n\n", image_query)
         # image_query = image_query.filter(models.Image.color[0] in COLOR_RANGE[color_query])
 
     # images = []
@@ -152,7 +181,6 @@ def create_image(db: Session, image: schemas.ImageCreate):
     db.add(db_image)
     db.commit()
     db.refresh(db_image)
-
 
     return db_image
 

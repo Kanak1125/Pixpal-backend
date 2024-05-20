@@ -44,18 +44,16 @@ def populate_db(db):
         results = json.load(f)
     
     print("Results: ", results)
-    # results = enumerate([1, 2, 3, 4, 5])
 
     # DUMMY USER...
     user = {
         'first_name': "Alien",
         'last_name': "Helion",
         'username': "alienHelion",
-        'profile_image_url': 'sdkfj',
+        'profile_image_url': 'https://images.unsplash.com/profile-1710891821008-f1c513959db1?ixlib=rb-4.0.3\u0026crop=faces\u0026fit=crop\u0026w=128\u0026h=128',
         'email': "alien@gmail.com",
         'password': "alien123"
     }
-
 
     user_obj = db.query(User).filter(User.email == user["email"]).first()
     if user_obj is None:

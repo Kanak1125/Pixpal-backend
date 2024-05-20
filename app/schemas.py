@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-
 from datetime import datetime
+import colorsys
 
 class URL(BaseModel):
     small: str
@@ -11,6 +11,31 @@ class Color(BaseModel):
     hue: int
     saturation: int
     value: int
+    
+class ColorCreate(BaseModel):
+    R: int
+    G: int
+    B: int
+
+    def to_hsv(self):
+        number_of_decimals = 4
+        hsvColor = colorsys.rgb_to_hsv(
+            round(self.R / float(256), number_of_decimals), 
+            round(self.G / float(256), number_of_decimals),
+            round(self.B / float(256), number_of_decimals)
+        )# returns hsv in decimal...
+
+
+        # de-normalize
+        hue = int(hsvColor[0] * 360)
+        saturation = int(hsvColor[1] * 100)
+        value = int(hsvColor[2] * 100)
+
+        localdict = locals() # get the local variables as dict key-value pairs...
+        kwords = ("hue", "saturation", "value")
+        data = { kword: localdict[kword] for kword in kwords}
+
+        return Color(**data)
 
 class TagBase(BaseModel):
     title: str

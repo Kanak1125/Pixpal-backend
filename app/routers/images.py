@@ -1,7 +1,7 @@
 import os, shutil
 from datetime import datetime
 from pathlib import Path
-
+import json
 import colorsys
 
 from PIL import Image
@@ -22,7 +22,13 @@ router = APIRouter(
 BASE_ROUTE = "api"
 
 @router.post(f"/images/")
-async def create_image(description: str = Form(...), color: schemas.Color = Form(...), tags: list[str] = Form(...),  uploaded_file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def create_image(description: str = Form(...), color = Form(...), tags: list[str] = Form(...),  uploaded_file: UploadFile = File(...), db: Session = Depends(get_db)):
+
+    color: schemas.ColorCreate = schemas.ColorCreate.model_validate(
+        json.loads(color)
+    )
+
+
 
     directory = Path("seed_images")
 
@@ -48,7 +54,7 @@ async def create_image(description: str = Form(...), color: schemas.Color = Form
     hash = None
 
     # with open(path, 'rb') as fp:
-    #     hash = blurhash.encode(fp, x_components= 4, y_components= 3)
+    #     hash = bslurhash.encode(fp, x_components= 4, y_components= 3)
 
     with Image.open(path) as image:
         image.thumbnail((100, 100))
@@ -61,10 +67,14 @@ async def create_image(description: str = Form(...), color: schemas.Color = Form
     
     img_size = img.size
     width, height = img_size
-    number_of_decimals = 4
 
-    # colorDict = eval(color)  # convert str to dict...
-    hsvColor = colorsys.rgb_to_hsv(round(color["R"] / float(256), number_of_decimals), round(color["G"] / float(256), number_of_decimals), round(color["B"] / float(256), number_of_decimals))   # returns hsv in decimal...
+    hsvColor = color.to_hsv()
+
+    # get_or_create_color(db, {
+    #     "hue": hsvColor[0],
+    #     "saturation": hsvColor[1],
+    #     "value": hsvColor[2]
+    # })               
 
     image = {
         "blur_hash": hash,
@@ -73,7 +83,11 @@ async def create_image(description: str = Form(...), color: schemas.Color = Form
         "alt_description": uploaded_file.filename,
         "width": width,
         "height": height,
-        # "color": "{0}".format(hsvColor),
+        "average_color": {
+            "hue": hsvColor.hue,
+            "saturation": hsvColor.saturation,
+            "value": hsvColor.value
+        },
         "file_name": uploaded_file.filename,
         "likes": 0,
     }
@@ -82,7 +96,6 @@ async def create_image(description: str = Form(...), color: schemas.Color = Form
 
     for each in tags:
         db_tag = db.query(models.Tag).filter(models.Tag.title == each).first()
-        # print("DB tag ==========>", db_tag)
 
         if not db_tag:
             new_tag = schemas.Tag(title= each, type= "search")
