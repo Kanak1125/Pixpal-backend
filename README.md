@@ -18,13 +18,13 @@ Some features of this site includes:
 To run this project, you need to have Python 3.6+, and pip installed on your machine. You can install the required packages by running the following command:
 
 ```bash
-    pip install
+pip install
 ```
 
 Similarly, you can start the server by running the following command:
 
 ```bash
-    uvicorn main:app --reload
+uvicorn main:app --reload
 ```
 
 And, [here](https://github.com/Kanak1125/image-gallery) is the link to the frontend repo of this project.
