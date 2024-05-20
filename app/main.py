@@ -1,4 +1,6 @@
 import os
+import json
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -14,13 +16,11 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-origins = ["http://127.0.0.1:5500", "http://127.0.0.1:5501", "blob:http://127.0.0.1:5501"]
-
 SUB_ROOT = "/app"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins= origins,
+    allow_origins= json.loads(os.getenv("ORIGINS")),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

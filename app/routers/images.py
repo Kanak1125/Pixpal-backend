@@ -1,17 +1,15 @@
-import os, shutil
+import shutil
 from datetime import datetime
 from pathlib import Path
 import json
-import colorsys
 
 from PIL import Image
 
 from fastapi import Depends, HTTPException, Query, Form, File, UploadFile, APIRouter
 from sqlalchemy.orm import Session
 
-from .. import crud, models, schemas
-from ..database import SessionLocal
-from ..utils.db_session import get_db
+from app import crud, models, schemas
+from app.utils.db_session import get_db
 
 import blurhash
 
@@ -28,33 +26,15 @@ async def create_image(description: str = Form(...), color = Form(...), tags: li
         json.loads(color)
     )
 
-
-
     directory = Path("seed_images")
 
     path = directory / uploaded_file.filename
-
-    # print(dir(uploaded_file))
-
-    # img = Image(file.stream)
-    # IF NOT img, raise excpeion
-    #  img.wdith, img.height
-    # IMG.SAVE(path)
-    
-
-    # img = Image.open(directory)
-    # img = Image.open(uploaded_file.filename)
-    # img.save(directory)
-    # img.save(f"./app/assets/images/")
 
     with open(path, "w+b") as fp:
         shutil.copyfileobj(uploaded_file.file, fp)
         shutil.copy2(path, f"./app/assets/images/")
 
     hash = None
-
-    # with open(path, 'rb') as fp:
-    #     hash = bslurhash.encode(fp, x_components= 4, y_components= 3)
 
     with Image.open(path) as image:
         image.thumbnail((100, 100))
@@ -68,13 +48,7 @@ async def create_image(description: str = Form(...), color = Form(...), tags: li
     img_size = img.size
     width, height = img_size
 
-    hsvColor = color.to_hsv()
-
-    # get_or_create_color(db, {
-    #     "hue": hsvColor[0],
-    #     "saturation": hsvColor[1],
-    #     "value": hsvColor[2]
-    # })               
+    hsvColor = color.to_hsv()           
 
     image = {
         "blur_hash": hash,

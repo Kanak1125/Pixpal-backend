@@ -3,7 +3,7 @@ import json
 
 from sqlalchemy.orm import Session, joinedload
 
-from . import models, schemas
+from app import models, schemas
 
 COLOR_RANGE = {
     "red": list(range(0, 31)) + list(range(330, 360)),

@@ -3,8 +3,8 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship, backref
 
-from .database import Base, engine, SessionLocal
-from .schemas import ImageResponse, TagResponse
+from app.database import Base, engine, SessionLocal
+from app.schemas import ImageResponse, TagResponse
 
 image_tag_association = Table (
     "assoc_image_tag",

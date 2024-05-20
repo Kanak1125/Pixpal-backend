@@ -1,4 +1,4 @@
-import os, time, shutil
+import time, shutil
 from pathlib import Path
 import json
 import requests
