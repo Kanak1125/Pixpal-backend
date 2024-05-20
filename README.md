@@ -26,3 +26,5 @@ Similarly, you can start the server by running the following command:
 ```bash
     uvicorn main:app --reload
 ```
+
+And, [here](https://github.com/Kanak1125/image-gallery) is the link to the frontend repo of this project.
