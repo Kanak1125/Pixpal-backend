@@ -64,8 +64,6 @@ def get_images(skip: int, limit: int, db: Session):
     return db.query(models.Image).offset(skip).limit(limit).options(joinedload(models.Image.tags)).all()
 
 def get_images_searches(db: Session, **query_str):
-    print("QUERY ----->", db.query(models.Image))
-
     search_query = query_str["q"]
     orientation_query = query_str["orientation"]
     color_query = query_str["color"]
@@ -73,20 +71,20 @@ def get_images_searches(db: Session, **query_str):
 
     image_query = db.query(models.Image).filter(models.Image.tags.any(models.Tag.title.in_(search_query)))
 
-    if "all" in search_query:
+    print("\n\n\n Search query ===> ", search_query)
+    if search_query:
+        image_query = image_query.filter(models.Image.tags.any(models.Tag.title.in_(search_query)))
+
+    if 'all' in search_query:
         image_query = db.query(models.Image)
+
 
     if not search_query:
         return []
     
-    # query_tags = db.query(models.Tag).filter(models.Tag.title.in_(search_query)).all()
-
-    # print("IMGQUERY 1 ", image_query.count(), "\n\n\n\n\n\n")
-    
     if orientation_query:
         match (orientation_query):
             case 'landscape':
-
                 image_query = image_query.filter(models.Image.height < models.Image.width)
             
             case 'portrait':
@@ -108,21 +106,19 @@ def get_images_searches(db: Session, **query_str):
 
 
         # image_query = db.query(models.Image).filter(models.Image.tags.any(models.Tag.title.in_(search_query)))
-        imageModel = models.Image
-        colorModel = models.Color
 
         if color_query in ["black", "white"]:
             saturation_range = color_range["saturation_range"]
             value_range = color_range["value_range"]
 
-            image_query = db.query(models.Image).filter(models.Image.average_color.has(
+            image_query = image_query.filter(models.Image.average_color.has(
                 models.Color.saturation.in_(saturation_range) 
                 & 
                 models.Color.value.in_(value_range)
             ))
 
         else:
-            image_query = db.query(models.Image).filter(models.Image.average_color.has(models.Color.hue.in_(color_range)))
+            image_query = image_query.filter(models.Image.average_color.has(models.Color.hue.in_(color_range)))
 
         print("\n\n\nData from the colored filter =======> {0} \n\n\n", image_query)
         # image_query = image_query.filter(models.Image.color[0] in COLOR_RANGE[color_query])

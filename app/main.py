@@ -26,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# populate the db if there is no image data...
 if (len(crud.get_images(skip=0, limit=10, db= get_db())) == 0):
     db = get_db()
     populate_db(db)

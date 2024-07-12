@@ -70,9 +70,13 @@ class Image(Base):
     def to_dict(self):
         return {field.name: getattr(self, field.name) for field in self.__table__.columns}
     
+    # treat the url() as the property that can be accessed as property and returns dictionary with different sizes...
     @property
     def url(self):
         BASE_URL = "http://localhost:8000/images/"
+
+        print("\n\n\nURL of the current image", BASE_URL + self.file_name)
+        print("\n\n\n")
 
         return {
             'small': BASE_URL + self.file_name,

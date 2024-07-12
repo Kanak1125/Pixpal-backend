@@ -17,8 +17,7 @@ router = APIRouter(
     prefix="/api"
 )
 
-BASE_ROUTE = "api"
-
+# Form(...) means the arg is required...
 @router.post(f"/images/")
 async def create_image(description: str = Form(...), color = Form(...), tags: list[str] = Form(...),  uploaded_file: UploadFile = File(...), db: Session = Depends(get_db)):
 
@@ -49,7 +48,7 @@ async def create_image(description: str = Form(...), color = Form(...), tags: li
     width, height = img_size
 
     hsvColor = color.to_hsv()           
-
+  
     image = {
         "blur_hash": hash,
         "created_at": datetime.now(),
