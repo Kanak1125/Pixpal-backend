@@ -35,4 +35,14 @@ from the root directory you can run the following command:
 uvicorn app.main:app --reload
 ```
 
-And, [here](https://github.com/Kanak1125/image-gallery) is the link to the frontend repo of this project.
+And, [here](https://github.com/Kanak1125/Pixpal-frontend) is the link to the frontend repo of this project.
+
+And Wait a moment, Don't forget to add this in your env file:
+
+```bash
+DB_HOST=<your_db_host>
+DB_NAME=<your_db_name>
+DB_USER=<your_db_user>
+DB_PASS=<your_db_pass>
+ORIGINS=<your_frontend_url>
+```
